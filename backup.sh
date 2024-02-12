@@ -89,7 +89,7 @@ else
     mariadb-dump --max_allowed_packet=1G --opt \
       -u$USER -p$PASS -h$HOST -P$PORT \
       --databases $DB_NAME \
-      | pigz | aws --endpoint $ENDPOINT s3 cp - s3://$BUCKET/$FILENAME \
+      | pigz | aws --endpoint-url $ENDPOINT s3 cp - s3://$BUCKET/$FILENAME \
       || echo "An error occurred with $DB_NAME"
   done
 fi
