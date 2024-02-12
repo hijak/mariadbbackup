@@ -5,4 +5,4 @@ RUN pip3 install awscli yq
 ADD backup.sh /usr/bin/backup
 RUN chmod +x /usr/bin/backup
 
-CMD ["/usr/local/bin/backup"]
+CMD ["/usr/bin/backup"]
