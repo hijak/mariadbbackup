@@ -81,7 +81,7 @@ then
        --master-data=2 \
       --databases $DB_NAME \
       | pigz > /backups/$FILENAME \
-      || 
+      || echo "An error occurred with $DB_NAME"
   done
 elif [ -z "$ENDPOINT" ]
 then
@@ -94,7 +94,7 @@ then
        --master-data=2 \
       --databases $DB_NAME \
       | pigz | aws s3 cp - s3://$BUCKET/$FILENAME \
-      || 
+      || echo "An error occurred with $DB_NAME"
   done  
 else
   echo "uploading to custom s3"
@@ -106,7 +106,7 @@ else
        --master-data=2 \
       --databases $DB_NAME \
       | pigz | aws --endpoint $ENDPOINT s3 cp - s3://$BUCKET/$FILENAME \
-      || 
+      || echo "An error occurred with $DB_NAME"
   done
 fi
 
