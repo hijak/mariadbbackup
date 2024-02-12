@@ -61,7 +61,7 @@ DATE_PREFIX=$(date +%F:%H:%M)
 #  fi
 #done
 
-DB_LIST=$(mysql -h$HOST -P$PORT -u$USER -p$PASS -B -N -e 'SHOW DATABASES' | egrep -v '^mysql$|^innodb$|^information_schema$|^performance_schema$' | tr '\n' ' ')
+DB_LIST=$(mariadb -h$HOST -P$PORT -u$USER -p$PASS -B -N -e 'SHOW DATABASES' | egrep -v '^mysql$|^innodb$|^information_schema$|^performance_schema$' | tr '\n' ' ')
 DB_LIST_COMMA=$(echo ${DB_LIST} | tr '[:space:]' , | sed -e 's/,$//g')
 
 #echo 'pre stop status'
