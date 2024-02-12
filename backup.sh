@@ -51,23 +51,10 @@ TARGET_PREFIX=$DEST/$(date +%Y-%m)/$(date +%F)
 TARGET_BUCKET_PREFIX=$(date +%Y-%m)/$(date +%F)
 DATE_PREFIX=$(date +%F:%H:%M)
 
-#BEHIND=60
-#until (( $BEHIND < 10 ));
-#do
-#  BEHIND=$(echo "SHOW SLAVE STATUS\G" | /usr/bin/mysql -h$HOST -P$PORT -u$USER -p$PASS)
-#  if (( $BEHIND >10 )); then
-#    echo Replication lag, waiting for server to catch up
-#    sleep 3
-#  fi
-#done
 
 DB_LIST=$(mariadb -h$HOST -P$PORT -u$USER -p$PASS -B -N -e 'SHOW DATABASES' | egrep -v '^mysql$|^innodb$|^information_schema$|^performance_schema$' | tr '\n' ' ')
 DB_LIST_COMMA=$(echo ${DB_LIST} | tr '[:space:]' , | sed -e 's/,$//g')
 
-#echo 'pre stop status'
-#mysql -h$HOST -P$PORT -u$USER -p$PASS -B -N -e 'SHOW SLAVE STATUS\G'
-
-#mysql -h$HOST -P$PORT -u$USER -p$PASS -B -N -e 'CALL mysql.rds_stop_replication;'
 
 if [[ -z "$BUCKET" && -z "$ENDPOINT" ]]
 then
@@ -78,7 +65,6 @@ then
     FILENAME=$TARGET_PREFIX/$DATE_PREFIX-$DB_NAME.sql.gz
     mariadb-dump --max_allowed_packet=1G --opt \
       -u$USER -p$PASS -h$HOST -P$PORT \
-       --master-data=2 \
       --databases $DB_NAME \
       | pigz > /backups/$FILENAME \
       || echo "An error occurred with $DB_NAME"
@@ -91,7 +77,6 @@ then
     FILENAME=$TARGET_BUCKET_PREFIX/$DATE_PREFIX-$DB_NAME.sql.gz
     mariadb-dump --max_allowed_packet=1G --opt \
       -u$USER -p$PASS -h$HOST -P$PORT \
-       --master-data=2 \
       --databases $DB_NAME \
       | pigz | aws s3 cp - s3://$BUCKET/$FILENAME \
       || echo "An error occurred with $DB_NAME"
@@ -103,13 +88,8 @@ else
     FILENAME=$TARGET_BUCKET_PREFIX/$DATE_PREFIX-$DB_NAME.sql.gz
     mariadb-dump --max_allowed_packet=1G --opt \
       -u$USER -p$PASS -h$HOST -P$PORT \
-       --master-data=2 \
       --databases $DB_NAME \
       | pigz | aws --endpoint $ENDPOINT s3 cp - s3://$BUCKET/$FILENAME \
       || echo "An error occurred with $DB_NAME"
   done
 fi
-
-#mysql -h$HOST -P$PORT -u$USER -p$PASS -B -N -e 'CALL mysql.rds_start_replication;'
-#echo 'post start status'
-#mysql -h$HOST -P$PORT -u$USER -p$PASS -B -N -e 'SHOW SLAVE STATUS\G'
