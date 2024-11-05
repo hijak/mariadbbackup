@@ -63,7 +63,7 @@ then
   do
     mkdir -p "$TARGET_PREFIX"
     FILENAME=$TARGET_PREFIX/$DATE_PREFIX-$DB_NAME.sql.gz
-    mariadb-dump --max_allowed_packet=1G --opt \
+    mariadb-dump --no-tablespaces --max_allowed_packet=1G --opt \
       -u$USER -p$PASS -h$HOST -P$PORT \
       --databases $DB_NAME \
       | pigz > /backups/$FILENAME \
@@ -75,7 +75,7 @@ then
   for DB_NAME in ${DB_LIST}
   do
     FILENAME=$TARGET_BUCKET_PREFIX/$DATE_PREFIX-$DB_NAME.sql.gz
-    mariadb-dump --max_allowed_packet=1G --opt \
+    mariadb-dump --no-tablespaces --max_allowed_packet=1G --opt \
       -u$USER -p$PASS -h$HOST -P$PORT \
       --databases $DB_NAME \
       | pigz | aws s3 cp - s3://$BUCKET/$FILENAME \
@@ -86,7 +86,7 @@ else
   for DB_NAME in ${DB_LIST}
   do
     FILENAME=$TARGET_BUCKET_PREFIX/$DATE_PREFIX-$DB_NAME.sql.gz
-    mariadb-dump --max_allowed_packet=1G --opt \
+    mariadb-dump --no-tablespaces --max_allowed_packet=1G --opt \
       -u$USER -p$PASS -h$HOST -P$PORT \
       --databases $DB_NAME \
       | pigz | aws --endpoint-url $ENDPOINT s3 cp - s3://$BUCKET/$FILENAME \
