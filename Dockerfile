@@ -1,4 +1,4 @@
-FROM mariadb
+FROM mariadb:10.6-focal
 
 RUN apt update && apt upgrade -y && apt install pigz python3-full python3-pip wget -y
 RUN pip3 install awscli yq
